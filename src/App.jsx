@@ -9,20 +9,27 @@ const SIZE=7, START={x:3,y:3}, INITIAL=[{x:0,y:0},{x:6,y:0},{x:0,y:6}];
 const key=(p)=>p.x+"-"+p.y;
 function distance(a,b){return Math.abs(a.x-b.x)+Math.abs(a.y-b.y)}
 function App(){
- const [page,setPage]=useState("home"),[turn,setTurn]=useState(0),[player,setPlayer]=useState(START),[guards,setGuards]=useState(INITIAL),[status,setStatus]=useState("playing"),[moves,setMoves]=useState(12),[showPremium,setShowPremium]=useState(false),[name,setName]=useState(()=>localStorage.getItem("jp-name")||"Jogador");
- useEffect(()=>{localStorage.setItem("jp-name",name)},[name]);
+ const [page,setPage]=useState("home"),[turn,setTurn]=useState(0),[player,setPlayer]=useState(START),[guards,setGuards]=useState(INITIAL),[status,setStatus]=useState("playing"),[moves,setMoves]=useState(12),[showPremium,setShowPremium]=useState(false),[name,setName]=useState(()=>localStorage.getItem("jp-name")||"Jogador"),[wins,setWins]=useState(()=>Number(localStorage.getItem("jp-wins")||0)),[losses,setLosses]=useState(()=>Number(localStorage.getItem("jp-losses")||0));
+ useEffect(()=>{localStorage.setItem("jp-name",name)},[name]);\n useEffect(()=>{localStorage.setItem("jp-wins",String(wins));localStorage.setItem("jp-losses",String(losses))},[wins,losses]);
  const reset=()=>{setPlayer(START);setGuards(INITIAL);setMoves(12);setTurn(0);setStatus("playing")};
  const move=(x,y)=>{
   if(status!=="playing"||distance(player,{x,y})!==1)return;
-  const next={x,y}; if(guards.some(g=>key(g)===key(next))){setPlayer(next);setStatus("caught");return}
-  const nextGuards=guards.map(g=>{
-   const opts=[{x:g.x+1,y:g.y},{x:g.x-1,y:g.y},{x:g.x,y:g.y+1},{x:g.x,y:g.y-1}].filter(p=>p.x>=0&&p.x<SIZE&&p.y>=0&&p.y<SIZE);
+  const next={x,y};
+  if(guards.some(g=>key(g)===key(next))){setPlayer(next);setStatus("caught");setLosses(v=>v+1);return}
+  const nextGuards=[],occupied=new Set();let captured=false;
+  for(let i=0;i<guards.length;i++){
+   const g=guards[i];
+   const opts=[{x:g.x+1,y:g.y},{x:g.x-1,y:g.y},{x:g.x,y:g.y+1},{x:g.x,y:g.y-1}]
+    .filter(p=>p.x>=0&&p.x<SIZE&&p.y>=0&&p.y<SIZE&&!occupied.has(key(p)));
    opts.sort((a,b)=>distance(a,next)-distance(b,next));
-   return opts[0]||g;
-  });
+   const chosen=opts[0]||g;
+   nextGuards.push(chosen);
+   if(key(chosen)===key(next)){captured=true;for(const rest of guards.slice(i+1))nextGuards.push(rest);break}
+   occupied.add(key(chosen));
+  }
   setPlayer(next);setGuards(nextGuards);setMoves(m=>m-1);setTurn(t=>t+1);
-  if(nextGuards.some(g=>key(g)===key(next))){setStatus("caught")}
-  else if(moves-1<=0){setStatus("escaped")}
+  if(captured){setStatus("caught");setLosses(v=>v+1)}
+  else if(moves-1<=0){setStatus("escaped");setWins(v=>v+1)}
  };
  const cells=useMemo(()=>Array.from({length:SIZE*SIZE},(_,i)=>({x:i%SIZE,y:Math.floor(i/SIZE)})),[]);
  return <div className="app-shell">
@@ -35,7 +42,7 @@ function App(){
    <footer>JOGOS PREMIUM <span>•</span> Diversão original para jogar em qualquer lugar</footer>
   </main>:<main className="game-screen"><button className="back" onClick={()=>setPage("home")}>← Voltar à coleção</button><div className="game-head"><div><small>CAÇADA URBANA · MODO SOLO</small><h1>Fuja da caçada.</h1><p>Você é o fugitivo. Os investigadores estão se aproximando.</p></div><div className="turn-box"><b>{moves}</b><span>movimentos restantes</span></div></div>
    <div className="game-layout"><section className="board-wrap"><div className="board-top"><span>MAPA DA CIDADE</span><span>RODADA {turn+1}</span></div><div className="board">{cells.map(c=>{const p=key(c),isYou=p===key(player),isGuard=guards.some(g=>key(g)===p);return <button key={p} className={"cell "+(isYou?"you":isGuard?"guard":"")+(distance(player,c)===1?" reachable":"")} onClick={()=>move(c.x,c.y)} aria-label={isYou?"Sua posição":isGuard?"Investigador":"Mover para "+(c.x+1)+","+(c.y+1)}>{isYou?"●":isGuard?"♟":((c.x+c.y)%3===0?"·":"")}</button>})}</div><div className="legend"><span><i className="dot you-dot"></i> Você</span><span><i className="dot guard-dot"></i> Investigadores</span><span><i className="dot move-dot"></i> Próximo movimento</span></div></section>
-   <aside className="game-side"><div className="objective"><small>SEU OBJETIVO</small><h3>Não seja capturado</h3><p>Sobreviva aos 12 movimentos. Toque em uma casa vizinha para se deslocar. Os investigadores avançam depois de cada jogada.</p></div><div className="side-stat"><span>Movimentos</span><b>{12-moves}/12</b></div><div className="side-stat"><span>Investigadores</span><b>03</b></div>{status!=="playing"&&<div className={"result "+status}><h3>{status==="escaped"?"Você escapou!":"Você foi capturado!"}</h3><p>{status==="escaped"?"A cidade ficou para trás. Vitória!":"Os investigadores fecharam o cerco. Tente outra rota."}</p><button onClick={reset}>Jogar novamente</button></div>}<button className="reset-btn" onClick={reset}>↻ Reiniciar partida</button></aside></div>
+   <aside className="game-side"><div className="objective"><small>SEU OBJETIVO</small><h3>Não seja capturado</h3><p>Sobreviva aos 12 movimentos. Toque em uma casa vizinha para se deslocar. Os investigadores avançam um por vez, tentando fechar seu caminho. Eles não podem ocupar a mesma casa. Sobreviva às 12 jogadas para vencer.</p></div><div className="side-stat"><span>Movimentos</span><b>{12-moves}/12</b></div><div className="side-stat"><span>Investigadores</span><b>03</b></div><div className="side-stat"><span>Vitórias</span><b>{wins}</b></div><div className="side-stat"><span>Capturas</span><b>{losses}</b></div>{status!=="playing"&&<div className={"result "+status}><h3>{status==="escaped"?"Você escapou!":"Você foi capturado!"}</h3><p>{status==="escaped"?"A cidade ficou para trás. Vitória!":"Os investigadores fecharam o cerco. Tente outra rota."}</p><button onClick={reset}>Jogar novamente</button></div>}<button className="reset-btn" onClick={reset}>↻ Reiniciar partida</button></aside></div>
   </main>}
   {showPremium&&<div className="modal-backdrop" onClick={()=>setShowPremium(false)}><section className="modal" onClick={e=>e.stopPropagation()}><button className="close" onClick={()=>setShowPremium(false)}>×</button><span className="crown big">♛</span><small>JOGOS PREMIUM</small><h2>Desbloqueie a coleção completa</h2><p>Tenha acesso ao Mistério Zero, Mente Secreta e a todos os novos jogos da coleção.</p><div className="modal-list"><span>✓ Acesso permanente na sua conta</span><span>✓ Novos desafios e atualizações</span><span>✓ Uma única compra</span></div><button className="modal-cta" onClick={()=>setShowPremium(false)}>Pagamento será ativado na próxima etapa</button><small className="note">Nenhuma cobrança é feita nesta versão de desenvolvimento.</small></section></div>}
  </div>
