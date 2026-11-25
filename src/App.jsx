@@ -10,7 +10,8 @@ const key=(p)=>p.x+"-"+p.y;
 function distance(a,b){return Math.abs(a.x-b.x)+Math.abs(a.y-b.y)}
 function App(){
  const [page,setPage]=useState("home"),[turn,setTurn]=useState(0),[player,setPlayer]=useState(START),[guards,setGuards]=useState(INITIAL),[status,setStatus]=useState("playing"),[moves,setMoves]=useState(12),[showPremium,setShowPremium]=useState(false),[name,setName]=useState(()=>localStorage.getItem("jp-name")||"Jogador"),[wins,setWins]=useState(()=>Number(localStorage.getItem("jp-wins")||0)),[losses,setLosses]=useState(()=>Number(localStorage.getItem("jp-losses")||0));
- useEffect(()=>{localStorage.setItem("jp-name",name)},[name]);\n useEffect(()=>{localStorage.setItem("jp-wins",String(wins));localStorage.setItem("jp-losses",String(losses))},[wins,losses]);
+ useEffect(()=>{localStorage.setItem("jp-name",name)},[name]);
+ useEffect(()=>{localStorage.setItem("jp-wins",String(wins));localStorage.setItem("jp-losses",String(losses))},[wins,losses]);
  const reset=()=>{setPlayer(START);setGuards(INITIAL);setMoves(12);setTurn(0);setStatus("playing")};
  const move=(x,y)=>{
   if(status!=="playing"||distance(player,{x,y})!==1)return;
