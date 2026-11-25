@@ -1,9 +1,9 @@
 import React,{useEffect,useMemo,useState} from "react";
 
 const GAMES=[
- {id:"hunt",name:"CAÇADA URBANA",tag:"JOGO JÁ LIBERADO",desc:"Fuja pela cidade, despiste os investigadores e sobreviva à caçada.",symbol:"🕵️",tone:"blue",locked:false},
- {id:"mystery",name:"MISTÉRIO ZERO",tag:"PREMIUM",desc:"Investigue cenas, confronte suspeitos e descubra quem está por trás do caso.",symbol:"🔎",tone:"amber",locked:true},
- {id:"mind",name:"MENTE SECRETA",tag:"PREMIUM",desc:"Desafie sua memória, raciocínio e conhecimentos em rodadas eletrizantes.",symbol:"🧠",tone:"purple",locked:true}
+ {id:"hunt",name:"CAÇADA URBANA",tag:"JOGO JÁ LIBERADO",desc:"Fuja pela cidade, despiste os investigadores e sobreviva à caçada.",cover:"/covers/cacada-urbana.svg",tone:"blue",locked:false},
+ {id:"mystery",name:"MISTÉRIO ZERO",tag:"PREMIUM",desc:"Investigue cenas, confronte suspeitos e descubra quem está por trás do caso.",cover:"/covers/misterio-zero.svg",tone:"amber",locked:true},
+ {id:"mind",name:"MENTE SECRETA",tag:"PREMIUM",desc:"Desafie sua memória, raciocínio e conhecimentos em rodadas eletrizantes.",cover:"/covers/mente-secreta.svg",tone:"purple",locked:true}
 ];
 const SIZE=7, START={x:3,y:3}, INITIAL=[{x:0,y:0},{x:6,y:0},{x:0,y:6}];
 const key=(p)=>p.x+"-"+p.y;
@@ -30,7 +30,7 @@ function App(){
   {page==="home"?<main className="home">
    <section className="hero"><div className="eyebrow">UMA COLEÇÃO. TRÊS DESAFIOS.</div><h1>Entre no jogo.<br/><em>Vire a lenda.</em></h1><p>Estratégia, investigação e inteligência em uma coleção feita para jogar no celular.</p><div className="hero-pills"><span>♟ Estratégia</span><span>⌕ Mistério</span><span>✦ Desafios</span></div></section>
    <div className="section-heading"><div><small>ESCOLHA SUA EXPERIÊNCIA</small><h2>Todos os jogos</h2></div><span className="count">01 / 03 LIBERADO</span></div>
-   <section className="games">{GAMES.map(g=><article className={"game-card "+g.tone} key={g.id}><div className="game-art"><div className="art-orbit"></div><span className="art-symbol">{g.symbol}</span><span className="art-stamp">{g.locked?"🔒 PREMIUM":"● LIBERADO"}</span></div><div className="game-copy"><div className="game-kicker">{g.tag}</div><h3>{g.name}</h3><p>{g.desc}</p><button className={g.locked?"locked-btn":"play-btn"} onClick={()=>g.locked?setShowPremium(true):setPage("hunt")}>{g.locked?"Desbloquear jogo ↗":"Jogar agora →"}</button></div></article>)}</section>
+   <section className="games">{GAMES.map(g=><article className={"game-card "+g.tone} key={g.id}><div className="game-art"><img className="game-cover" src={g.cover} alt={"Capa ilustrada de "+g.name}/><span className="art-stamp">{g.locked?"ACESSO PREMIUM":"JOGO LIBERADO"}</span></div><div className="game-copy"><div className="game-kicker">{g.tag}</div><h3>{g.name}</h3><p>{g.desc}</p><button className={g.locked?"locked-btn":"play-btn"} onClick={()=>g.locked?setShowPremium(true):setPage("hunt")}>{g.locked?"Desbloquear jogo ↗":"Jogar agora →"}</button></div></article>)}</section>
    <section className="premium-strip"><div><span className="crown">♛</span><div><small>ACESSO COMPLETO</small><h3>Uma compra. A coleção inteira.</h3><p>Desbloqueie os três jogos na mesma conta.</p></div></div><button onClick={()=>setShowPremium(true)}>Conhecer Premium</button></section>
    <footer>JOGOS PREMIUM <span>•</span> Diversão original para jogar em qualquer lugar</footer>
   </main>:<main className="game-screen"><button className="back" onClick={()=>setPage("home")}>← Voltar à coleção</button><div className="game-head"><div><small>CAÇADA URBANA · MODO SOLO</small><h1>Fuja da caçada.</h1><p>Você é o fugitivo. Os investigadores estão se aproximando.</p></div><div className="turn-box"><b>{moves}</b><span>movimentos restantes</span></div></div>
