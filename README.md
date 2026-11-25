@@ -1,53 +1,21 @@
-# Jogos Premium — como publicar e começar a vender
+# Jogos Premium
 
-Este app foi feito aqui no Claude (por isso usa uma API de armazenamento
-própria do Claude). Este pacote já vem "traduzido" pra rodar como um site
-normal, publicável em qualquer serviço de hospedagem.
+Plataforma mobile-first com três experiências originais:
+- **Caçada Urbana** — primeiro jogo jogável, modo solo de perseguição em tabuleiro.
+- **Mistério Zero** — área Premium em preparação.
+- **Mente Secreta** — área Premium em preparação.
 
-## 1. Terminar a parte do Stripe
-No arquivo `src/App.jsx`, procure por:
-- `UNLOCK_CODE = "PREMIUM990"`
-- `STORE_CODE = "LOJA990"`
+## Stack
+React + Vite, CSS responsivo e PWA instalável. O primeiro protótipo funciona sem cadastro, API ou custo de backend. O progresso e o nome ficam apenas no navegador neste estágio.
 
-Troque a lógica desses dois pontos pelo seu Payment Link/Checkout real do
-Stripe (mesmo fluxo que você já usa no Preço X e no NEURA.market). Enquanto
-isso não for feito, qualquer pessoa que souber o código digita e libera
-tudo de graça.
+## Desenvolvimento
+`npm install` e `npm run dev`.
 
-## 2. Publicar (duas opções)
+## Próximas etapas
+1. Incorporar as artes promocionais individuais nos três cards.
+2. Completar as regras e níveis de Caçada Urbana.
+3. Implementar contas, partidas online e ranking compartilhado.
+4. Integrar checkout real e liberação Premium segura via backend/webhook. Não há cobrança ativa nesta versão.
 
-### Opção A — Vercel (recomendada, você já tem conta)
-1. Acesse vercel.com e entre com a conta que você já usa (asb178-7596)
-2. "Add New" → "Project" → "Import" → suba esta pasta inteira (ou conecte
-   a um repositório GitHub novo com esses arquivos)
-3. Vercel detecta automaticamente que é um projeto Vite — não precisa
-   configurar nada, só clicar em "Deploy"
-4. Em alguns minutos você recebe um link tipo `jogos-premium.vercel.app`
-
-### Opção B — Netlify
-1. Acesse app.netlify.com
-2. Arraste esta pasta pra área de deploy manual, ou conecte via GitHub
-3. Build command: `npm run build` — Publish directory: `dist`
-
-## 3. Transformar em app instalável (opcional)
-Depois de publicado, você pode gerar um APK pra Android do mesmo jeito
-que fez com o Preço X: cole o link publicado no PWABuilder
-(pwabuilder.com) e gere o pacote.
-
-## 4. Compartilhar
-Depois de publicado, o link (ex: `https://jogos-premium.vercel.app`) é
-o que você divulga no Instagram, WhatsApp, Facebook etc. — igual fez com
-o NEURA.market e o Preço X.
-
-## 5. Como o dinheiro chega até você
-Assim que o Payment Link do Stripe estiver ativo no app publicado, cada
-compra cai direto na sua conta Stripe (StaelRj), do mesmo jeito que os
-outros projetos. Sem intermediário.
-
-## Sobre o Ranking Online
-O "Ranking Online" da Arena de Rastros usa uma função de armazenamento
-compartilhado que só existe dentro do Claude. Neste pacote publicado, ela
-foi trocada por armazenamento local do navegador — funciona, mas cada
-pessoa só vê a própria pontuação, não a de todo mundo. Se quiser um
-ranking de verdade compartilhado entre jogadores, dá pra ligar isso ao
-Supabase (você já tem conta) — é só pedir.
+## Publicação
+Projeto conectado ao Vercel pelo GitHub. Deploy automático a cada atualização na branch main.
